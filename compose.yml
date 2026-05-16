@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: 'inter_user'
       POSTGRES_PASSWORD: 'inter_password'
-      POSTGRES_DB: 'inter_db'
+      POSTGRES_DB: 'intermin_db'
     ports:
       - '5432:5432'
     volumes:

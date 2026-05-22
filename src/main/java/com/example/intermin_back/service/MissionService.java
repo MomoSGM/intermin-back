@@ -1,10 +1,8 @@
 package com.example.intermin_back.service;
 
-import com.example.intermin_back.model.Entreprise;
 import com.example.intermin_back.model.Interimaire;
 import com.example.intermin_back.model.Mission;
 import com.example.intermin_back.model.User;
-import com.example.intermin_back.repository.EntrepriseRepository;
 import com.example.intermin_back.repository.InterimaireRepository;
 import com.example.intermin_back.repository.MissionRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,20 +20,19 @@ import java.util.Map;
 public class MissionService {
 
     private final MissionRepository missionRepository;
-    private final EntrepriseRepository entrepriseRepository;
     private final InterimaireRepository interimaireRepository;
 
     @Transactional
     public Mission creerMission(Map<String, Object> payload) {
-        Long idEntreprise = Long.valueOf(payload.get("idEntreprise").toString());
-        Entreprise entreprise = entrepriseRepository.findById(idEntreprise)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entreprise non trouvée"));
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getEntreprise() == null)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Réservé aux entreprises");
 
         Mission mission = Mission.builder()
                 .poste((String) payload.get("poste"))
                 .localisation((String) payload.get("localisation"))
                 .duree(Integer.parseInt(payload.get("duree").toString()))
-                .entreprise(entreprise)
+                .entreprise(user.getEntreprise())
                 .build();
 
         return missionRepository.save(mission);
